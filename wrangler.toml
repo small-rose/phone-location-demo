@@ -1,0 +1,10 @@
+# wrangler.toml
+name = "phone-location-api"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+# 启用 Durable Objects / KV？不需要，本项目纯无状态
+# 所以保持最简
+
+# ⚠️ 重要：此处不填 account_id —— Cloudflare Actions 会自动注入
+# 我们靠 GitHub Actions 的 secret 来认证
