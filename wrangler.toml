@@ -1,5 +1,5 @@
 # wrangler.toml
-name = "phone-location-api"
+name = "phone-location-demo"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 
