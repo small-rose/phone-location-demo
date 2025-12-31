@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>📱 手机号归属地查询（Serverless Demo）</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.6; color: #333; background: #f8f9fa; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; }
+    header { background: #4f46e5; color: white; padding: 24px; text-align: center; }
+    h1 { font-weight: 600; font-size: 1.5rem; }
+    .desc { opacity: 0.9; margin-top: 8px; font-size: 0.95rem; }
+    .main { padding: 32px; }
+    label { display: block; margin-bottom: 8px; font-weight: 500; }
+    input { width: 100%; padding: 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 1rem; }
+    button { 
+      width: 100%; margin-top: 20px; padding: 14px; background: #4f46e5; color: white; 
+      border: none; border-radius: 8px; font-size: 1.05rem; font-weight: 600; cursor: pointer;
+    }
+    button:hover { background: #4338ca; }
+    .result { margin-top: 24px; padding: 16px; background: #f1f5f9; border-radius: 8px; display: none; }
+    .result.show { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .item { margin: 10px 0; }
+    .label { display: inline-block; width: 80px; font-weight: 600; color: #4a5568; }
+    .value { color: #2d3748; }
+    footer { text-align: center; padding: 20px; color: #718096; font-size: 0.85rem; border-top: 1px solid #edf2f7; }
+    @media (max-width: 480px) { .main { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔍 手机号归属地查询</h1>
+      <p class="desc">基于 Cloudflare Workers 免费 Serverless 构建｜毫秒响应｜无需注册</p>
+    </header>
+    <div class="main">
+      <label for="phone">请输入手机号：</label>
+      <input type="tel" id="phone" placeholder="例如：13812345678" maxlength="11" />
+      <button id="queryBtn">立即查询</button>
+
+      <div class="result" id="result">
+        <div class="item"><span class="label">号码：</span><span class="value" id="tel"></span></div>
+        <div class="item"><span class="label">省份：</span><span class="value" id="province"></span></div>
+        <div class="item"><span class="label">城市：</span><span class="value" id="city"></span></div>
+        <div class="item"><span class="label">运营商：</span><span class="value" id="carrier"></span></div>
+        <div class="item"><span class="label">ISP：</span><span class="value" id="isp"></span></div>
+      </div>
+    </div>
+    <footer>
+      ✨ 由 Serverless 驱动｜<a href="https://github.com/yourname/phone-location-demo" target="_blank" style="color:#4f46e5;text-decoration:underline;">开源代码</a>
+    </footer>
+  </div>
+
+  <script>
+    document.getElementById('queryBtn').addEventListener('click', async () => {
+      const input = document.getElementById('phone').value.trim();
+      const resultEl = document.getElementById('result');
+      const els = {
+        tel: document.getElementById('tel'),
+        province: document.getElementById('province'),
+        city: document.getElementById('city'),
+        carrier: document.getElementById('carrier'),
+        isp: document.getElementById('isp')
+      };
+
+      // 清空上次结果
+      Object.values(els).forEach(el => el.textContent = '...');
+      resultEl.classList.remove('show');
+
+      try {
+        const res = await fetch(`/api?tel=${encodeURIComponent(input)}`);
+        const data = await res.json();
+
+        if (!data.success) {
+          alert('❌ ' + data.message);
+          return;
+        }
+
+        // 填充结果
+        els.tel.textContent = data.tel;
+        els.province.textContent = data.province;
+        els.city.textContent = data.city || '—';
+        els.carrier.textContent = data.carrier;
+        els.isp.textContent = data.isp || '—';
+
+        resultEl.classList.add('show');
+      } catch (err) {
+        alert('⚠️ 查询出错：' + err.message);
+      }
+    });
+
+    // 支持回车查询
+    document.getElementById('phone').addEventListener('keypress', e => {
+      if (e.key === 'Enter') document.getElementById('queryBtn').click();
+    });
+  </script>
+</body>
+</html>
